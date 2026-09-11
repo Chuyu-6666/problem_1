@@ -139,28 +139,5 @@ def update_moisture(
 
     return C_new
 
-if __name__ == '__main__':
-    geometry = np.array([
-        [1.0e-6, 0.0, 1.0e-4],
-        [2.0e-6, 1.0e-4, 2.0e-4],
-        [3.0e-6, 2.0e-4, 3.0e-4],
-        [4.0e-6, 3.0e-4, 4.0e-4],
-        [5.0e-6, 4.0e-4, 5.0e-4]
-    ])
-    C = np.array([
-        2.55,
-        2.55,
-        2.55,
-        2.55,
-        2.55
-    ])
 
-    C_air = 0.5
-    dC = calculate_moisture_change(
-        C,
-        C_air,geometry,rho=rho
-    )
-
-    print("dC:")
-    print(dC)
 
