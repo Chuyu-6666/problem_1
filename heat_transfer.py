@@ -1,130 +1,44 @@
-"""
-heat_transfer.py
+import numpy as np
 
-功能：
--------
-本模块用于计算药材预热过程中的温度变化。
-
-基于能量守恒和傅里叶导热定律，
-根据当前时刻各控制体温度状态，
-计算下一时间步的温度状态。
+from config import dt, rho, cp, k, h, dr
 
 
-模型输入：
--------
-1. 当前温度场 T
+def calculate_temperature_change(T, T_air, geometry):
 
-形式:
-    T = [T1, T2, ..., TN]
+    N = len(T)
 
-含义:
-    T[i] 表示第 i 个环形控制体当前时刻的温度。
+    dT = np.zeros(N)
 
 
-2. 外部环境温度 Ta
-
-形式:
-    float
-
-含义:
-    药材外部空气温度。
+    V = geometry[:,0]
+    S_in = geometry[:,1]
+    S_out = geometry[:,2]
 
 
-3. 几何参数 geometry
+    # center layer
+    Q_out = k*S_out[0]*(T[1]-T[0])/dr
 
-包含：
-
-    V:
-        每个控制体体积
-
-        V = [V1, V2, ..., VN]
+    dT[0] = dt/(rho*cp*V[0])*(-Q_out)
 
 
-    A:
-        相邻控制体之间的传热面积
+    # inner layers
+    for i in range(1,N-1):
+
+        Q_in = k*S_in[i]*(T[i-1]-T[i])/dr
+
+        Q_out = k*S_out[i]*(T[i+1]-T[i])/dr
+
+        dT[i] = dt/(rho*cp*V[i])*(Q_in-Q_out)
 
 
-    As:
-        药材外表面对流换热面积
+
+    # surface layer
+    Q_in = k*S_in[-1]*(T[-2]-T[-1])/dr
+
+    Q_surface = h*S_out[-1]*(T_air-T[-1])
 
 
-4. 模型参数
-
-包括：
-
-    k:
-        药材热导率
-
-    rho:
-        药材密度
-
-    cp:
-        药材比热容
-
-    h:
-        表面对流换热系数
+    dT[-1] = dt/(rho*cp*V[-1])*(Q_in+Q_surface)
 
 
-5. 时间参数
-
-    dt:
-        时间步长
-
-
-模型计算过程：
--------
-Step 1:
-根据傅里叶导热定律计算相邻控制体之间热流：
-
-    q = -k * dT/dr
-
-
-Step 2:
-根据热流和传热面积计算热量交换：
-
-    Q = q * A
-
-
-Step 3:
-根据能量守恒更新控制体温度：
-
-    rho * cp * V_i * (T_new - T_old) / dt
-        =
-    Q_in - Q_out
-
-
-模型输出：
--------
-下一时刻温度场：
-
-    T_new = [
-        T1_new,
-        T2_new,
-        ...,
-        TN_new
-    ]
-
-
-调用关系：
--------
-main.py
-    |
-    ↓
-solver.py
-    |
-    ↓
-heat_transfer.py
-
-
-本模块只负责：
-    温度变化计算
-
-不负责：
-    1. 时间循环
-    2. 几何生成
-    3. 外界温度读取
-    4. 结果绘图
-
-    最后结果返回np形式
-
-"""
+    return dT
