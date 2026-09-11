@@ -3,7 +3,11 @@ import numpy as np
 from config import dt, rho, cp, k, h, dr
 
 
-def calculate_temperature_change(T, T_air, geometry):
+
+
+
+
+def calculate_temperature_change(T, T_air, geometry,k=k,rho=rho,cp=cp):
 
     N = len(T)
 
