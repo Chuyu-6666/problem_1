@@ -5,6 +5,7 @@ import config
 #creat_geometry[i](第几层)=【V，S_out,S_in】
 
 
+
 def create_geometry():
 
     R=config.R
